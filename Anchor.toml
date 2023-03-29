@@ -1,5 +1,5 @@
 [features]
-seeds = false
+seeds = true
 skip-lint = false
 [programs.localnet]
 first_anchor_program = "AProvwUdgUYhvLJjejBH5Ba7LfS8wKAbj5KmFNmf2FNt"
