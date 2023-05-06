@@ -9,7 +9,7 @@ pub mod first_anchor_program {
     pub fn my_instruction(ctx: Context<InstructionAccounts>, input_number: u64, _pda_nr: u32) -> Result<()> {
         ctx.accounts.data_account.number1 = input_number;
         ctx.accounts.data_account.number2 = 2;
-        ctx.accounts.data_account.bump = *ctx.bumps.get("data_account").unwrap();
+        // ctx.accounts.data_account.bump = *ctx.bumps.get("data_account").unwrap();
         msg!("Data account created!");
         Ok(())
     }
@@ -29,10 +29,11 @@ pub mod first_anchor_program {
 #[derive(Accounts)]
 #[instruction(input_number: u64, pda_nr: u32)]
 pub struct InstructionAccounts<'info> {
-    #[account(seeds = [b"data", user.key().as_ref(), &pda_nr.to_le_bytes()], bump,
-        mut, realloc = 8 + 8 + 2 + 1,
-        realloc::payer = user,
-        realloc::zero = false)]
+    // #[account(seeds = [b"data", user.key().as_ref(), &pda_nr.to_le_bytes()], bump,
+    //     mut, realloc = 8 + 8 + 2 + 1,
+    //     realloc::payer = user,
+    //     realloc::zero = false)]
+    #[account(init, payer = user, space =  8 + 8 + 2 + 1)]
     pub data_account: Account<'info, DifferentAccountStruct>,
     #[account(mut)]
     pub user: Signer<'info>,
@@ -42,7 +43,7 @@ pub struct InstructionAccounts<'info> {
 #[derive(Accounts)]
 #[instruction(pda_nr: u32)]
 pub struct CloseAccounts<'info> {
-    #[account(mut, close = user, seeds = [b"data", user.key().as_ref(), &pda_nr.to_le_bytes()], bump = data_account.bump)]
+    #[account(mut, close = user)]//, seeds = [b"data", user.key().as_ref(), &pda_nr.to_le_bytes()], bump = data_account.bump)]
     pub data_account: Account<'info, DifferentAccountStruct>,
     #[account(mut)]
     pub user: Signer<'info>
