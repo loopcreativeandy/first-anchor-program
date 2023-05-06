@@ -1,11 +1,48 @@
 use anchor_lang::prelude::*;
+use gm_anchor;
+use solana_program;
 
 declare_id!("AProvwUdgUYhvLJjejBH5Ba7LfS8wKAbj5KmFNmf2FNt");
+
+// #[derive(Clone)]
+// pub struct GmProgram;
+// impl anchor_lang::Id for GmProgram {
+//     fn id() -> Pubkey {
+//         gm_anchor::id()
+//     }
+// }
 
 #[program]
 pub mod first_anchor_program {
     use super::*;
 
+    pub fn my_gm_instruction(ctx: Context<MyGmAccounts>) -> Result<()>{
+        let gms = 12u8;
+        let cpi_context = CpiContext::new(
+            ctx.accounts.gm_program.to_account_info(), 
+            gm_anchor::cpi::accounts::GmAccounts{
+                gm_program: ctx.accounts.gm_program.to_account_info()
+            });
+        gm_anchor::cpi::gm_instruction(
+            cpi_context,
+            gms
+        )?;
+
+        solana_program::program::invoke(
+            &solana_program::instruction::Instruction{
+                program_id: ctx.accounts.gm_program.key(),
+                accounts: vec![solana_program::instruction::AccountMeta::new_readonly
+                    (ctx.accounts.gm_program.key(), false)],
+                    // sha256(global:gm_instruction) -> 515D7D4C030E63C0
+                data: vec![81, 93, 125, 76, 3, 14, 99, 192, gms]
+            }, 
+            &[
+                ctx.accounts.gm_program.to_account_info()
+            ]
+        ).map_err(Into::into)
+
+    }
+    
     pub fn my_instruction(ctx: Context<InstructionAccounts>, input_number: u64, _pda_nr: u32) -> Result<()> {
         ctx.accounts.data_account.number1 = input_number;
         ctx.accounts.data_account.number2 = 2;
@@ -20,7 +57,7 @@ pub mod first_anchor_program {
         Ok(())
     }
     
-    pub fn my_close(ctx: Context<CloseAccounts>, _pda_nr: u32) -> Result<()> {
+    pub fn my_close(_ctx: Context<CloseAccounts>, _pda_nr: u32) -> Result<()> {
         msg!("Data account closed!");
         Ok(())
     }
@@ -47,6 +84,11 @@ pub struct CloseAccounts<'info> {
     pub data_account: Account<'info, DifferentAccountStruct>,
     #[account(mut)]
     pub user: Signer<'info>
+}
+
+#[derive(Accounts)]
+pub struct MyGmAccounts<'info> {
+    pub gm_program: Program<'info, gm_anchor::GmProgram>
 }
 
 #[derive(Accounts)]

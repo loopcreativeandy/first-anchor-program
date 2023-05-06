@@ -1,12 +1,12 @@
 [package]
-name = "first-anchor-program"
+name = "gm-anchor"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "first_anchor_program"
+name = "gm_anchor"
 
 [features]
 no-entrypoint = []
@@ -16,6 +16,4 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { version = "0.26.0", features = ["init-if-needed"] }
-gm-anchor = { path = "../gm-anchor", features = ["cpi"]}
-solana-program = "*"
+anchor-lang = "0.26.0"

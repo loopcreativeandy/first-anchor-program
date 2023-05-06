@@ -653,6 +653,8 @@ name = "first-anchor-program"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
+ "gm-anchor",
+ "solana-program",
 ]
 
 [[package]]
@@ -690,6 +692,13 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "gm-anchor"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
 ]
 
 [[package]]
