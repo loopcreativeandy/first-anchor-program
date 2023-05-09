@@ -7,6 +7,9 @@ pub mod gm_anchor {
     use super::*;
 
     pub fn gm_instruction(ctx: Context<GmAccounts>, gms: u8) -> Result<()> {
+
+        msg!("signer signed is {}", ctx.accounts.signer.is_signer);
+
         require_gte!(10, gms, GmErrors::TooManyGMs);
         require!(gms <= 10, GmErrors::TooManyGMs);
         if gms > 10 {
@@ -39,5 +42,7 @@ impl anchor_lang::Id for GmProgram {
 
 #[derive(Accounts)]
 pub struct GmAccounts<'info> {
-    pub gm_program: Program<'info, GmProgram>
+    /// CHECK: this is save, trust me, I'm a dev!
+    pub signer: UncheckedAccount<'info>,
+    //pub gm_program: Program<'info, GmProgram>
 }

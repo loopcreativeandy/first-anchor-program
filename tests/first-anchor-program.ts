@@ -10,12 +10,19 @@ describe("first-anchor-program", () => {
   const program = anchor.workspace.FirstAnchorProgram as Program<FirstAnchorProgram>;
 
   it("test GM!", async () => {
+    try{
     const tx = await program.methods.myGmInstruction()
       .accounts({
         gmProgram: new anchor.web3.PublicKey("GMoMVeaVmD8H2JqgbSaSBuELofJus3z5Lb97AfKFrw3k")
       })
       .rpc();
-    console.log("Your transaction signature", tx);
+      console.log("Your transaction signature", tx);
+    } catch (error) {
+      console.trace();
+      console.log(error);
+      console.log(error.message);
+      throw error;
+    }
   });
 
 

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use gm_anchor;
-use solana_program;
+// use solana_program;
 
 declare_id!("AProvwUdgUYhvLJjejBH5Ba7LfS8wKAbj5KmFNmf2FNt");
 
@@ -17,28 +17,40 @@ pub mod first_anchor_program {
     use super::*;
 
     pub fn my_gm_instruction(ctx: Context<MyGmAccounts>) -> Result<()>{
-        let gms = 12u8;
-        let cpi_context = CpiContext::new(
+        let gms = 2u8;
+        let seeds: &[&[&[u8]]] = &[&[b"authority", &[*ctx.bumps.get("pda").unwrap()]]];
+        // let accounts = PseudoGmAccounts{
+        //     signer: ctx.accounts.pda
+        // };
+        let mut signer = ctx.accounts.pda.to_account_info();
+        signer.is_signer = true;
+        let cpi_context = CpiContext::new_with_signer(
             ctx.accounts.gm_program.to_account_info(), 
             gm_anchor::cpi::accounts::GmAccounts{
-                gm_program: ctx.accounts.gm_program.to_account_info()
-            });
+                signer: signer
+            },
+            seeds
+        );
+        msg!(" is signer {}", cpi_context.accounts.signer.is_signer);
         gm_anchor::cpi::gm_instruction(
             cpi_context,
             gms
         )?;
+        msg!("cpi successful");
+        Ok(())
 
-        solana_program::program::invoke(
+        solana_program::program::invoke_signed(
             &solana_program::instruction::Instruction{
                 program_id: ctx.accounts.gm_program.key(),
                 accounts: vec![solana_program::instruction::AccountMeta::new_readonly
-                    (ctx.accounts.gm_program.key(), false)],
+                    (ctx.accounts.pda.key(), true)],
                     // sha256(global:gm_instruction) -> 515D7D4C030E63C0
                 data: vec![81, 93, 125, 76, 3, 14, 99, 192, gms]
             }, 
             &[
-                ctx.accounts.gm_program.to_account_info()
-            ]
+                ctx.accounts.pda.to_account_info()
+            ],
+            seeds
         ).map_err(Into::into)
 
     }
@@ -88,6 +100,9 @@ pub struct CloseAccounts<'info> {
 
 #[derive(Accounts)]
 pub struct MyGmAccounts<'info> {
+    /// CHECK: This account is never written to or read from (it doesn't even exist; it's just used for signing)
+    #[account(seeds = [b"authority"], bump)]
+    pub pda: UncheckedAccount<'info>,
     pub gm_program: Program<'info, gm_anchor::GmProgram>
 }
 
